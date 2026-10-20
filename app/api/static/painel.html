@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de testes – Raízes do Nordeste</title>
+<style>
+  :root { --verde:#2e7d32; --azul:#1565c0; --vermelho:#c62828; --borda:#d9dce1; --marrom:#7a3b0c; }
+  * { box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; margin: 0; background: #f6f6f4; color: #222; }
+  header { background: var(--marrom); color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  header h1 { margin: 0; font-size: 20px; }
+  header a { color: #ffe0b2; }
+  main { max-width: 1000px; margin: 18px auto; padding: 0 14px; }
+  section { background: #fff; border: 1px solid var(--borda); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  section.oculto { display: none; }
+  h2 { margin: 0 0 10px; font-size: 18px; }
+  .num { background: var(--marrom); color: #fff; border-radius: 50%; display: inline-block; width: 26px; height: 26px; text-align: center; line-height: 26px; margin-right: 8px; font-size: 14px; }
+  p.dica { margin: 0 0 12px; color: #555; font-size: 14px; }
+  button { cursor: pointer; border: 0; border-radius: 6px; padding: 8px 14px; font-size: 14px; background: var(--azul); color: #fff; margin: 2px 4px 2px 0; }
+  button.verde { background: var(--verde); } button.vermelho { background: var(--vermelho); }
+  button.laranja { background: #e65100; } button.cinza { background: #6b7280; }
+  select, input { padding: 7px; border: 1px solid var(--borda); border-radius: 6px; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+  th, td { padding: 7px; border-bottom: 1px solid var(--borda); text-align: left; vertical-align: middle; }
+  th { background: #fafafa; }
+  .badge { padding: 2px 9px; border-radius: 10px; font-size: 12px; color: #fff; background: #6b7280; white-space: nowrap; }
+  .AGUARDANDO_PAGAMENTO { background: #f9a825; } .PAGO { background: #1565c0; } .EM_PREPARO { background: #6a1b9a; }
+  .PRONTO { background: #00838f; } .ENTREGUE { background: #2e7d32; } .CANCELADO { background: #c62828; }
+  #msg { display: none; padding: 11px 14px; border-radius: 8px; margin-bottom: 14px; font-weight: bold; }
+  #msg.ok { display: block; background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+  #msg.erro { display: block; background: #ffebee; color: #b71c1c; border: 1px solid #ef9a9a; }
+  .linha { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  #quem { font-weight: bold; color: var(--verde); }
+  pre { background: #111; color: #e5e7eb; padding: 10px; border-radius: 8px; overflow: auto; max-height: 280px; font-size: 12px; margin: 8px 0 0; }
+  #respStatus { font-family: monospace; font-weight: bold; }
+  .s2 { color: #1b5e20; } .s4 { color: #b71c1c; } .s5 { color: #b71c1c; }
+  footer { text-align: center; color: #666; font-size: 13px; padding-bottom: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Raízes do Nordeste – Painel de testes</h1>
+  <span>Documentação técnica: <a href="/docs">Swagger (/docs)</a></span>
+</header>
+<main>
+  <div id="msg"></div>
+
+  <section id="secLogin">
+    <h2><span class="num">1</span>Entrar</h2>
+    <p class="dica">Escolha quem vai usar o sistema. A senha de todos os usuários de teste já é preenchida automaticamente.</p>
+    <div class="linha">
+      <select id="selUsuario">
+        <option value="cliente@raizes.test">Cliente (com programa de fidelidade)</option>
+        <option value="cliente2@raizes.test">Cliente 2 (sem fidelidade)</option>
+        <option value="atendente.recife@raizes.test">Atendente – balcão de Recife</option>
+        <option value="cozinha.recife@raizes.test">Cozinha – Recife</option>
+        <option value="gerente.recife@raizes.test">Gerente – Recife</option>
+        <option value="admin@raizes.test">Administrador da rede</option>
+      </select>
+      <button id="btnEntrar" class="verde">Entrar</button>
+      <span id="quem">Ninguém logado</span>
+    </div>
+  </section>
+
+  <section id="secPedido" class="oculto">
+    <h2><span class="num">2</span>Fazer um pedido</h2>
+    <p class="dica">Escolha a unidade e o canal, carregue o cardápio, informe as quantidades e crie o pedido.</p>
+    <div class="linha">
+      <label>Unidade
+        <select id="selUnidade"><option value="1">1 – Recife (cardápio completo)</option><option value="2">2 – Fortaleza (cardápio reduzido)</option></select>
+      </label>
+      <label>Canal
+        <select id="selCanal"><option>APP</option><option>TOTEM</option><option>BALCAO</option><option>PICKUP</option><option>WEB</option></select>
+      </label>
+      <button id="btnCardapio">Carregar cardápio</button>
+    </div>
+    <table>
+      <thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Quantidade</th></tr></thead>
+      <tbody id="tbCardapio"></tbody>
+    </table>
+    <p><button id="btnCriar" class="verde">Criar pedido</button></p>
+  </section>
+
+  <section id="secSemPedido" class="oculto">
+    <h2><span class="num">2</span>Fazer um pedido</h2>
+    <p class="dica">Este perfil não faz pedidos. Entre como <b>Cliente</b> ou <b>Atendente</b> para criar um, e volte aqui para acompanhar e atualizar o andamento.</p>
+  </section>
+
+  <section id="secPedidos" class="oculto">
+    <h2><span class="num">3</span>Pedidos e andamento</h2>
+    <p class="dica">Cada pedido mostra só os botões que o perfil logado pode usar. Para pagar, escolha o resultado que o pagamento simulado deve devolver.</p>
+    <button id="btnListar" class="cinza">Atualizar lista</button>
+    <table>
+      <thead><tr><th>Nº</th><th>Canal</th><th>Situação</th><th>Total</th><th>Ações</th></tr></thead>
+      <tbody id="tbPedidos"></tbody>
+    </table>
+  </section>
+
+  <section id="secEstoque" class="oculto">
+    <h2><span class="num">4</span>Estoque da unidade</h2>
+    <p class="dica">Visível para gerente e administrador. O botão +10 registra uma entrada de 10 unidades.</p>
+    <div class="linha">
+      <label>Unidade
+        <select id="selUnidadeEstoque"><option value="1">1 – Recife</option><option value="2">2 – Fortaleza</option></select>
+      </label>
+      <button id="btnEstoque" class="cinza">Atualizar estoque</button>
+    </div>
+    <table>
+      <thead><tr><th>Produto</th><th>Quantidade</th><th>Ação</th></tr></thead>
+      <tbody id="tbEstoque"></tbody>
+    </table>
+  </section>
+
+  <section id="secResposta">
+    <h2>Resposta técnica da API</h2>
+    <p class="dica">Mostra a última chamada feita. Útil para conferir os códigos de status e o formato dos erros.</p>
+    <div id="respStatus">Nenhuma chamada ainda</div>
+    <pre id="resp">{}</pre>
+  </section>
+</main>
+<footer>Painel simples apenas para testes manuais. A documentação oficial da API é o Swagger, em <a href="/docs">/docs</a>.</footer>
+
+<script>
+let token = null, perfil = null, unidadeUsuario = null;
+const $ = (id) => document.getElementById(id);
+const brl = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+function el(tag, props = {}, ...filhos) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  }
+  e.append(...filhos);
+  return e;
+}
+
+function aviso(texto, ok = true) {
+  const m = $('msg');
+  m.className = ok ? 'ok' : 'erro';
+  m.textContent = texto;
+  if (m.scrollIntoView) m.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function msgErro(r) {
+  const d = r.dados || {};
+  const det = (d.details || []).map((x) => `${x.field}: ${x.issue}`).join('; ');
+  return (d.message || 'Erro inesperado') + (det ? ' – ' + det : '');
+}
+
+function mostrarResposta(metodo, caminho, status, dados) {
+  const s = $('respStatus');
+  s.textContent = `${metodo} ${caminho} → ${status}`;
+  s.className = 's' + String(status)[0];
+  $('resp').textContent = typeof dados === 'string' ? dados : JSON.stringify(dados, null, 2);
+}
+
+async function api(metodo, caminho, corpo, headers = {}) {
+  const h = { 'Content-Type': 'application/json', ...headers };
+  if (token) h.Authorization = 'Bearer ' + token;
+  let r;
+  try {
+    r = await fetch(caminho, { method: metodo, headers: h, body: corpo ? JSON.stringify(corpo) : undefined });
+  } catch (e) {
+    aviso('Não consegui falar com a API. Ela está rodando?', false);
+    throw e;
+  }
+  const txt = await r.text();
+  let dados = null;
+  try { dados = txt ? JSON.parse(txt) : null; } catch { dados = txt; }
+  mostrarResposta(metodo, caminho, r.status, dados);
+  return { status: r.status, ok: r.ok, dados };
+}
+
+const mostrar = (id, sim) => $(id).classList.toggle('oculto', !sim);
+
+async function entrar() {
+  const r = await api('POST', '/auth/login', { email: $('selUsuario').value, senha: 'Senha@123' });
+  if (!r.ok) return aviso(msgErro(r), false);
+  token = r.dados.accessToken;
+  perfil = r.dados.user.perfil;
+  unidadeUsuario = r.dados.user.unidadeId;
+  $('quem').textContent = `Logado como ${r.dados.user.nome} (${perfil})`;
+  aviso(`Login realizado: ${r.dados.user.nome} – ${perfil}.`);
+
+  const fazPedido = perfil === 'CLIENTE' || perfil === 'ATENDENTE';
+  mostrar('secPedido', fazPedido);
+  mostrar('secSemPedido', !fazPedido);
+  mostrar('secPedidos', true);
+  $('selCanal').value = perfil === 'ATENDENTE' ? 'BALCAO' : 'APP';
+  $('selUnidade').disabled = perfil === 'ATENDENTE';
+  if (perfil === 'ATENDENTE') $('selUnidade').value = String(unidadeUsuario);
+  $('tbCardapio').replaceChildren();
+
+  const gestor = perfil === 'GERENTE' || perfil === 'ADMIN';
+  mostrar('secEstoque', gestor);
+  if (gestor) {
+    $('selUnidadeEstoque').disabled = perfil === 'GERENTE';
+    if (perfil === 'GERENTE') $('selUnidadeEstoque').value = String(unidadeUsuario);
+    await carregarEstoque();
+  }
+  await listarPedidos();
+}
+
+async function carregarCardapio() {
+  const r = await api('GET', `/unidades/${$('selUnidade').value}/cardapio?limit=100`);
+  const tb = $('tbCardapio');
+  tb.replaceChildren();
+  if (!r.ok) return aviso(msgErro(r), false);
+  for (const i of r.dados.items) {
+    tb.append(el('tr', {}, el('td', {}, i.nome), el('td', {}, i.categoria), el('td', {}, brl(i.preco)),
+      el('td', {}, el('input', { type: 'number', min: '0', max: '99', value: '0', 'data-produto': String(i.produtoId), style: 'width:70px' }))));
+  }
+  aviso(`Cardápio carregado: ${r.dados.items.length} itens. Informe as quantidades e clique em "Criar pedido".`);
+}
+
+async function criarPedido() {
+  const campos = [...document.querySelectorAll('#tbCardapio input')];
+  const itens = campos.map((c) => ({ produtoId: Number(c.dataset.produto), quantidade: Number(c.value) })).filter((i) => i.quantidade > 0);
+  if (!itens.length) return aviso('Escolha a quantidade de pelo menos um item.', false);
+  const chave = 'painel-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+  const r = await api('POST', '/pedidos', { canalPedido: $('selCanal').value, unidadeId: Number($('selUnidade').value), itens }, { 'Idempotency-Key': chave });
+  if (!r.ok) return aviso(msgErro(r), false);
+  aviso(`Pedido #${r.dados.id} criado (${r.dados.status}) – total ${brl(r.dados.valorTotal)}. Agora pague na lista abaixo.`);
+  campos.forEach((c) => { c.value = '0'; });
+  await listarPedidos();
+}
+
+function botoesDoPedido(p) {
+  const bs = [];
+  const btn = (txt, cls, fn) => el('button', { class: cls, onclick: fn }, txt);
+  if (p.status === 'AGUARDANDO_PAGAMENTO' && (perfil === 'CLIENTE' || perfil === 'ATENDENTE')) {
+    bs.push(btn('Pagar (aprovado)', 'verde', () => pagar(p.id, 'tok_aprovado')));
+    bs.push(btn('Pagar (recusado)', 'vermelho', () => pagar(p.id, 'tok_recusado')));
+    bs.push(btn('Simular falha do gateway', 'laranja', () => pagar(p.id, 'tok_timeout')));
+  }
+  const trans = { PAGO: ['EM_PREPARO', 'Iniciar preparo', ['COZINHA', 'ATENDENTE', 'GERENTE', 'ADMIN']],
+                  EM_PREPARO: ['PRONTO', 'Marcar pronto', ['COZINHA', 'GERENTE', 'ADMIN']],
+                  PRONTO: ['ENTREGUE', 'Entregar', ['ATENDENTE', 'GERENTE', 'ADMIN']] }[p.status];
+  if (trans && trans[2].includes(perfil)) bs.push(btn(trans[1], '', () => mudarStatus(p.id, trans[0])));
+  const quemCancela = { AGUARDANDO_PAGAMENTO: ['CLIENTE', 'ATENDENTE', 'GERENTE', 'ADMIN'], PAGO: ['GERENTE', 'ADMIN'], EM_PREPARO: ['GERENTE', 'ADMIN'] }[p.status];
+  if (quemCancela && quemCancela.includes(perfil)) bs.push(btn('Cancelar', 'cinza', () => cancelar(p.id)));
+  return bs;
+}
+
+async function listarPedidos() {
+  const r = await api('GET', '/pedidos?limit=20');
+  const tb = $('tbPedidos');
+  tb.replaceChildren();
+  if (!r.ok) return aviso(msgErro(r), false);
+  if (!r.dados.items.length) tb.append(el('tr', {}, el('td', { colspan: '5' }, 'Nenhum pedido ainda.')));
+  for (const p of r.dados.items) {
+    tb.append(el('tr', {}, el('td', {}, '#' + p.id), el('td', {}, p.canalPedido),
+      el('td', {}, el('span', { class: 'badge ' + p.status }, p.status)), el('td', {}, brl(p.valorTotal)),
+      el('td', {}, ...botoesDoPedido(p))));
+  }
+}
+
+async function pagar(id, tokenCartao) {
+  const r = await api('POST', `/pedidos/${id}/pagamento`, { formaPagamento: 'MOCK', tokenCartao });
+  if (r.status === 200) aviso(`Pagamento aprovado! Pedido #${id} está PAGO` + (r.dados.pontosCreditados ? ` (+${r.dados.pontosCreditados} pontos de fidelidade).` : '.'));
+  else if (r.status === 402) aviso(`Pagamento recusado. O pedido #${id} foi cancelado e o estoque devolvido.`, false);
+  else if (r.status === 503) aviso(`O gateway de pagamento não respondeu. O pedido #${id} continua aguardando pagamento: tente de novo.`, false);
+  else aviso(msgErro(r), false);
+  await listarPedidos();
+}
+
+async function mudarStatus(id, novo) {
+  const r = await api('PATCH', `/pedidos/${id}/status`, { status: novo });
+  aviso(r.ok ? `Pedido #${id} agora está ${r.dados.status}.` : msgErro(r), r.ok);
+  await listarPedidos();
+}
+
+async function cancelar(id) {
+  const r = await api('POST', `/pedidos/${id}/cancelamento`, { motivo: 'Cancelado pelo painel de testes' });
+  aviso(r.ok ? `Pedido #${id} cancelado e estoque devolvido.` : msgErro(r), r.ok);
+  await listarPedidos();
+}
+
+async function carregarEstoque() {
+  const r = await api('GET', `/unidades/${$('selUnidadeEstoque').value}/estoque`);
+  const tb = $('tbEstoque');
+  tb.replaceChildren();
+  if (!r.ok) return aviso(msgErro(r), false);
+  for (const i of r.dados) {
+    tb.append(el('tr', {}, el('td', {}, i.nome), el('td', {}, String(i.quantidade)),
+      el('td', {}, el('button', { onclick: () => entradaEstoque(i.produtoId, i.nome) }, '+10'))));
+  }
+}
+
+async function entradaEstoque(produtoId, nome) {
+  const r = await api('POST', '/estoque/movimentos', { unidadeId: Number($('selUnidadeEstoque').value), produtoId, tipo: 'ENTRADA', quantidade: 10, motivo: 'Reposição pelo painel de testes' });
+  aviso(r.ok ? `Entrada registrada: ${nome} agora tem ${r.dados.saldoAtual} unidades.` : msgErro(r), r.ok);
+  await carregarEstoque();
+}
+
+$('btnEntrar').addEventListener('click', entrar);
+$('btnCardapio').addEventListener('click', carregarCardapio);
+$('btnCriar').addEventListener('click', criarPedido);
+$('btnListar').addEventListener('click', listarPedidos);
+$('btnEstoque').addEventListener('click', carregarEstoque);
+</script>
+</body>
+</html>
